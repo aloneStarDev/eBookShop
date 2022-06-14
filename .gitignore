@@ -1,0 +1,4 @@
+node_modules/
+pakage-lock.json
+src/configs/disposable-email.txt
+src/configs/rock-you.txt
