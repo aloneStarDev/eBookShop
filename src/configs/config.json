@@ -1,0 +1,12 @@
+{
+    "smtp_server": {
+        "host": "smtp.ethereal.email",
+        "port": 587,
+        "secure":false,
+        "auth": {
+            "user": "heidi.zulauf86@ethereal.email",
+            "pass": "ZneAEMAKCeem9CYE1j"
+        }
+    },
+    "jwt_secret":"hijack@Asgar"
+}

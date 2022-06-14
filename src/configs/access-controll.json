@@ -1,0 +1,146 @@
+{
+    "paths": {
+        "/api/user/add": {
+            "roles": [
+                2
+            ],
+            "parameter": {
+                "name": {
+                    "type": "string",
+                    "required": true
+                },
+                "username": {
+                    "type": "string",
+                    "required": true
+                },
+                "password": {
+                    "type": "string",
+                    "required": true
+                },
+                "email": {
+                    "type": "string",
+                    "required": true
+                },
+                "role": {
+                    "type": "number"
+                },
+                "verify": {
+                    "type": "boolean"
+                },
+                "code": {
+                    "type": "string"
+                }
+            }
+        },
+        "/api/user/register": {
+            "parameter": {
+                "name": {
+                    "type": "string",
+                    "required": true
+                },
+                "username": {
+                    "type": "string",
+                    "required": true
+                },
+                "password": {
+                    "type": "string",
+                    "required": true
+                },
+                "email": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "/api/user/edit": {
+            "roles": [
+                0,
+                1,
+                2
+            ],
+            "parameter": {
+                "uid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "number"
+                },
+                "verify": {
+                    "type": "boolean"
+                },
+                "code": {
+                    "type": "string"
+                }
+            },
+            "method":"put",
+            "description":{
+                "uid":"identifier for update filter - if not specified using jwt user"                
+            }
+        },
+        "/api/user/remove": {
+            "roles": [
+                2
+            ],
+            "parameter": {
+                "usernames": {
+                    "type": "array.string",
+                    "required": true
+                }
+            }
+        },
+        "/api/user/login": {
+            "parameter": {
+                "username": {
+                    "type": "string",
+                    "required": true
+                },
+                "password": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "/api/user/verify": {
+            "parameter": {
+                "code": {
+                    "type": "string",
+                    "required": true
+                },
+                "username": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "/api/user/list": {
+            "roles": [
+                2
+            ]
+        },
+        "/api/files/add": {
+            "roles": [
+                1,
+                2
+            ]
+        },
+        "/api/files/get": {
+            "roles": [
+                0,
+                1,
+                2
+            ]
+        }
+    }
+}
