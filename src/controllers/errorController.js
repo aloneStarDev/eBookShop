@@ -9,6 +9,8 @@ module.exports = (err, req, res, next) => {
         if (err.message.includes("JSON")) {
             res.status(400).json({ ok: false, error: "invalid json" })
             return;
+        }else{
+            console.log(err);
         }
         res.status(500).json({ ok: false, error: "server error" })
         return;

@@ -15,21 +15,13 @@ const Roles = {
 const UserSchema = new Schema({
     name: { type: String, required: [true, "name required"] },
     username: { type: String, required: [true, "username required"], unique: true },
-    password: { type: String, required: [true, "password required"], validate: password_validator },
+    password: { type: String, required: [true, "password required"] },
     email: { type: String, required: [true, "email required"], unique: true, validate: email_validator },
     verify: { type: Boolean, default: false },
     code: { type: String },
     role: { type: Number, default: Roles.USER}
 });
 
-UserSchema.pre('save', function (next) {
-    if (this.isNew) {
-        let hash = crypto.createHash("sha256")
-        hash.update(this.password);
-        this.password = hash.digest("hex");
-    }
-    next();
-})
 UserSchema.methods = {
     check_password: function (password) {
         let hash = crypto.createHash("sha256")

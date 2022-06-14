@@ -84,9 +84,9 @@
                     "type": "string"
                 }
             },
-            "method":"put",
-            "description":{
-                "uid":"identifier for update filter - if not specified using jwt user"                
+            "method": "put",
+            "description": {
+                "uid": "identifier for update filter - if not specified using jwt user"
             }
         },
         "/api/user/remove": {
@@ -129,13 +129,36 @@
                 2
             ]
         },
-        "/api/files/add": {
+        "/api/fobject/file/add": {
             "roles": [
+                0,
                 1,
                 2
             ]
         },
-        "/api/files/get": {
+        "/api/fobject/folder/add": {
+            "roles": [
+                0,
+                1,
+                2
+            ],
+            "parameter":{
+                "public":{
+                    "type":"boolean"
+                },
+                "vpath":{
+                    "type":"string"
+                },
+                "name":{
+                    "type":"string",
+                    "required":true
+                },
+                "access":{
+                    "type":"array.string"
+                }
+            }
+        },
+        "/api/fobject/tree": {
             "roles": [
                 0,
                 1,

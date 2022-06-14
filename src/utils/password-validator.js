@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { isAsyncFunction } = require("util/types");
 const password_validator = [
     {
         validator: (password) => {
@@ -41,4 +42,10 @@ const password_validator = [
         message:'your password is weak'
     },
 ];
-module.exports = password_validator;
+function validate_all(password){
+    for(let i in password_validator){
+        if(!password_validator[i].validator(password))
+            throw password_validator[i].message;
+    };
+}
+module.exports = validate_all;

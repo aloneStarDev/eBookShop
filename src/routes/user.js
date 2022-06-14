@@ -1,6 +1,7 @@
 const express = require("express");
 const jsonwebtoken = require("jsonwebtoken");
 const { verify } = require("jsonwebtoken");
+const validate_password = require("../utils/password-validator");
 const cfg = require("../configs/config.json");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
@@ -8,6 +9,16 @@ const router = express.Router();
 
 router.post("/register", async (req, res, next) => {
     const User = mongoose.model("User");
+    try {
+        validate_password(req.body.password);
+    } catch (e) {
+        res.status(400);
+        next(e);
+        return;
+    }
+    let sha256 = crypto.createHash("sha256");
+    sha256.update(req.body.password);
+    req.body.password = sha256.digest("hex");
     let user = new User(req.body);
     try {
         await user.save();
@@ -39,6 +50,16 @@ router.post("/verify", async (req, res, next) => {
 
 router.post("/add", async (req, res, next) => {
     const User = mongoose.model("User");
+    try {
+        validate_password(req.body.password);
+    } catch (e) {
+        res.status(400);
+        next(e);
+        return;
+    }
+    let sha256 = crypto.createHash("sha256");
+    sha256.update(req.body.password);
+    req.body.password = sha256.digest("hex");
     let user = new User(req.body);
     try {
         await user.save();
@@ -80,9 +101,15 @@ router.post("/login", async (req, res, next) => {
         res.status(401);
         next("invalid username or password");
     } else {
-        jwt = jsonwebtoken.sign({ role: user.role, email: user.email, username: user.username }, cfg.jwt_secret, { expiresIn: "2d" });
+        jwt = jsonwebtoken.sign({ role: user.role, email: user.email, username: user.username, id: user._id.toString() }, cfg.jwt_secret, { expiresIn: "2d" });
         res.status(200).json({ ok: true, data: jwt })
     }
+});
+
+router.post("/list", async (req, res, next) => {
+    const User = mongoose.model("User");
+    let users = await User.find({});
+    res.status(200).json({ ok: true, data: users });
 });
 
 router.patch("/edit", async (req, res, next) => {
@@ -92,6 +119,13 @@ router.patch("/edit", async (req, res, next) => {
         delete req.body.uid;
         try {
             if (req.body.hasOwnProperty("password")) {
+                try {
+                    validate_password(req.body.password);
+                } catch (e) {
+                    res.status(400);
+                    next(e);
+                    return;
+                }
                 let sha256 = crypto.createHash("sha256");
                 sha256.update(req.body.password);
                 req.body.password = sha256.digest("hex");
@@ -102,13 +136,13 @@ router.patch("/edit", async (req, res, next) => {
                 return;
             }
 
-            let result = await User.updateOne({ username: uid }, req.body, { runValidators: true });
+            let result = await User.updateOne({ username: uid }, req.body, { runValidators: true, upsert: true });
             if (result.acknowledged) {
                 if (result.modifiedCount === 1) {
                     res.status(200).json({ ok: true });
                 } else if (result.matchedCount === 1) {
                     res.status(400);
-                    next({ ok: false, error: "no change detected" });
+                    next("no change detected");
                 }
             }
             else {
