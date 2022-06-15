@@ -129,6 +129,11 @@
                 2
             ]
         },
+        "/api/fobject/list": {
+            "roles": [
+                2
+            ]
+        },
         "/api/fobject/file/add": {
             "roles": [
                 0,
