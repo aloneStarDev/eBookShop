@@ -15,7 +15,7 @@ const FObject = new Schema({
     owner: { type: ObjectId, required: [true, "owner required"] },
     access: [{ type: ObjectId }],
     vpath: { type: String, default: "/" },
-    public: { type: Boolean, defualt: false },
+    public: { type: Boolean, defualt: false}
 }, { timestamps: true });
 
 FObject.methods = {

@@ -142,19 +142,19 @@
                 1,
                 2
             ],
-            "parameter":{
-                "public":{
-                    "type":"boolean"
+            "parameter": {
+                "public": {
+                    "type": "boolean"
                 },
-                "vpath":{
-                    "type":"string"
+                "vpath": {
+                    "type": "string"
                 },
-                "name":{
-                    "type":"string",
-                    "required":true
+                "name": {
+                    "type": "string",
+                    "required": true
                 },
-                "access":{
-                    "type":"array.string"
+                "access": {
+                    "type": "array.string"
                 }
             }
         },
@@ -163,7 +163,85 @@
                 0,
                 1,
                 2
-            ]
+            ],
+            "parameter": {
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "/api/fobject/remove": {
+            "roles": [
+                0,
+                1,
+                2
+            ],
+            "parameter": {
+                "path": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "/api/fobject/access/add": {
+            "roles": [
+                0,
+                1,
+                2
+            ],
+            "parameter": {
+                "username": {
+                    "type": "string",
+                    "required": true
+                },
+                "path": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "/api/fobject/access/remove": {
+            "roles": [
+                0,
+                1,
+                2
+            ],
+            "parameter": {
+                "username": {
+                    "type": "array.string",
+                    "required": true
+                },
+                "path": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "/api/fobject/access/list": {
+            "roles": [
+                0,
+                1,
+                2
+            ],
+            "parameter": {
+                "path": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "/api/fobject/access/public": {
+            "roles": [
+                0,
+                1,
+                2
+            ],
+            "parameter": {
+                "path": {
+                    "type": "string",
+                    "required": true
+                }
+            }
         }
     }
 }

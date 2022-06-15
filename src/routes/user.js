@@ -96,7 +96,7 @@ router.post("/login", async (req, res, next) => {
     let sha256 = crypto.createHash("sha256");
     sha256.update(req.body.password);
     req.body.password = sha256.digest("hex");
-    let user = await User.findOne(req.body,);
+    let user = await User.findOne(req.body);
     if (user == null) {
         res.status(401);
         next("invalid username or password");
