@@ -1,27 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import theme from './Theme';
+import { darkTheme, lightTheme } from './Theme';
 import store from './Redux/Store'
 import { ThemeProvider } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
+function Init() {
+  const [theme, setTheme] = useState(lightTheme);
+  let thm = useSelector(state => state.config.theme);
+  useEffect(() => {
+    if (thm === "light")
+      setTheme(lightTheme);
+    else if (thm === "dark")
+      setTheme(darkTheme);
+  }, [thm]);
+
+  return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <Provider store={store}>
-          <App />
-        </Provider>
+        <App />
       </BrowserRouter>
     </ThemeProvider>
+  );
+}
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <Init />
+    </Provider>
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+reportWebVitals(console.log);

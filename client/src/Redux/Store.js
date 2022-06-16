@@ -1,5 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
-import cslice from './cslice'
+import cslice from './ConfigSlice'
+import uslice from './UserSlice'
+import reqslice from './RequestSlice'
+
 export default configureStore({
-    reducer: { cslice },
-})
+    reducer: {
+        config: cslice,
+        user: uslice,
+        request: reqslice,
+    }
+});
