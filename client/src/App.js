@@ -1,19 +1,20 @@
-import { AppBar, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemButton, ListItemIcon, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { AppBar, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import Main from "./Pages/Main";
 import Register from "./Pages/Register";
 import Login from "./Pages/Login";
 import Icon from '@mui/material/Icon';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleTheme, toggleSideMenu, setJwt } from "./Redux/ConfigSlice";
+import { toggleTheme, toggleSideMenu } from "./Redux/ConfigSlice";
+import { setJwt } from "./Redux/RequestSlice";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
 function App() {
 	const navigate = useNavigate();
 	const thm = useSelector(state => state.config.theme);
 	const sideMenu = useSelector(state => state.config.sideMenu);
-	const jwt = useSelector(state => state.config.jwt);
+	const jwt = useSelector(state => state.request.jwt);
 	const dispach = useDispatch();
 	const [anchorEl, setAnchorEl] = useState(null);
 
@@ -32,7 +33,7 @@ function App() {
 
 	return (
 		<>
-			<Box container sx={{ height:"100vh", bgcolor:"background.default" }}>
+			<Box container sx={{ height: "100vh", bgcolor: "background.default" }}>
 				<Box sx={{ flexGrow: 1 }}>
 					<AppBar position="static">
 						<Toolbar>

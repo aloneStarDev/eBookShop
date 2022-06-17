@@ -8,6 +8,9 @@ import store from './Redux/Store'
 import { ThemeProvider } from '@mui/material';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider, useSelector } from 'react-redux';
+import { SnackbarProvider } from 'notistack';
+import RequestAdaptor from './Services/RequestAdaptor';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 function Init() {
   const [theme, setTheme] = useState(lightTheme);
@@ -22,9 +25,12 @@ function Init() {
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <App />
+        <SnackbarProvider maxSnack={3}>
+          <RequestAdaptor />
+          <App />
+        </SnackbarProvider>
       </BrowserRouter>
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }
 root.render(
