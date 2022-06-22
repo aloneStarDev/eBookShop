@@ -131,8 +131,15 @@
         },
         "/api/fobject/list": {
             "roles": [
-                2
-            ]
+		0,
+		1,
+		2
+            ],
+	    "parameter":{
+	    	"path":{
+		     "type":"string"
+		}
+	    }
         },
         "/api/fobject/file/add": {
             "roles": [

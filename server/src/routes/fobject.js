@@ -69,6 +69,11 @@ router.post("/folder/add", async (req, res, next) => {
     }
     if (req.body.access) {
         req.body.access = (await User.find({ "username": { "$in": req.body.access } })).map(x => x._id.toString());
+	if(req.body.access.length === 0){
+		res.status(400);
+		next("invalid username in access filed");
+		return;
+	}
     }
     if (req.body.vpath) {
         let path = req.body.vpath.split("/");
@@ -113,7 +118,6 @@ router.post("/remove", async (req, res, next) => {
         name,
         "$or": [
             { owner: req.jwt.id },
-            { access: req.jwt.id }
         ]
     });
     if (result) {
@@ -123,7 +127,7 @@ router.post("/remove", async (req, res, next) => {
         res.status(200).json({ ok: true })
     }
     else
-        res.status(200).json({ ok: false })
+        res.status(200).json({ ok: false,error:"access denied" })
 });
 router.post("/access/add", async (req, res, next) => {
     const FObjectModel = mongoose.model("FObject");
@@ -230,12 +234,23 @@ router.post("/tree", async (req, res, next) => {
 
 router.post("/list", async (req, res, next) => {
     const FObjectModel = mongoose.model("FObject");
+    const UserModel = mongoose.model("User");
     let fitems = await FObjectModel.find({
         "$or": [
             { owner: req.jwt.id },
-            { access: req.jwt.id }
+            { access: req.jwt.id },
+	    { public: true }
         ]
     });
+    fitems = await Promise.all(fitems.map(async (item)=>{
+    	let ac = (await UserModel.find({_id:{"$in":item.access}})).map(x=>x.username)
+	let new_item = {
+	    ...item._doc,
+	    access:ac
+	};
+	
+	return new_item;
+    }));
     res.status(200).json({ ok: true, data: fitems });
 });
 

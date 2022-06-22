@@ -87,7 +87,7 @@ router.post("/remove", async (req, res, next) => {
         res.status(500).json({ ok: false, error: "fail to delete all items" })
     } else {
         res.status(400);
-        next("invalid verification code");
+        next("fail to delete items");
     }
 });
 
@@ -102,7 +102,8 @@ router.post("/login", async (req, res, next) => {
         next("invalid username or password");
     } else {
         jwt = jsonwebtoken.sign({ role: user.role, email: user.email, username: user.username, id: user._id.toString() }, cfg.jwt_secret, { expiresIn: "2d" });
-        res.status(200).json({ ok: true, data: jwt })
+      	delete user.password
+	res.status(200).json({ ok: true, data: jwt , user})
     }
 });
 

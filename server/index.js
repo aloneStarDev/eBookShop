@@ -5,6 +5,7 @@ const all = require("./src/middlewares/all");
 require("./src/models/Repository");
 port = process.env.port || 8000;
 app = express();
+app.use(express.static("public"));
 app.use(express.json());
 app.use(all);
 app.use(api);
