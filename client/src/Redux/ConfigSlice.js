@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+let theme = localStorage.getItem('theme') || 'light';
 export const configSlice = createSlice({
   name: 'config',
   initialState: {
-    theme: localStorage.getItem('theme') ?? 'light',
+    theme: theme,
     sideMenu: false,
-    jwt: localStorage.getItem('jwt'),
   },
   reducers: {
     toggleTheme: (state) => {
@@ -15,16 +15,9 @@ export const configSlice = createSlice({
     toggleSideMenu: (state) => {
       state.sideMenu = !state.sideMenu;
     },
-    setJwt: (state, action) => {
-      if (action.payload === null)
-        localStorage.removeItem('jwt');
-      else
-        localStorage.setItem("jwt", action.payload);
-      state.jwt = action.payload
-    },
   },
 })
 
-export const { toggleTheme, toggleSideMenu, setJwt } = configSlice.actions
+export const { toggleTheme, toggleSideMenu } = configSlice.actions
 
 export default configSlice.reducer
