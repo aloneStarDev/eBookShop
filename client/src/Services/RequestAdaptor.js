@@ -2,7 +2,9 @@ import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { response, setJwt } from '../Redux/RequestSlice';
+import { get_fobject_list, list_user, response, setJwt } from '../Redux/RequestSlice';
+import { setFs } from '../Redux/StorageSlice';
+import { setUsers } from "../Redux/UserManagementSlice";
 import { setUser } from '../Redux/UserSlice';
 
 function RequestAdaptor() {
@@ -32,6 +34,7 @@ function RequestAdaptor() {
                             if (res.ok) {
                                 snackbar_key = enqueueSnackbar("welcom", { variant: "success" });
                                 dispatch(setJwt(res.data));
+                                dispatch(setUser(res.user));
                                 navigate("/");
                             }
                             else
@@ -51,6 +54,60 @@ function RequestAdaptor() {
                                 setTimeout(() => {
                                     navigate("/login");
                                 }, 4000);
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/user/list":
+                            if (res.ok) {
+                                dispatch(setUsers(res.data.map(user => { return { ...user, checked: false } })));
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/user/add":
+                            if (res.ok) {
+                                dispatch(list_user());
+                                snackbar_key = enqueueSnackbar("new user added successfully", { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/user/edit":
+                            if (res.ok) {
+                                dispatch(list_user());
+                                snackbar_key = enqueueSnackbar("user updated successfully", { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/user/remove":
+                            if (res.ok) {
+                                dispatch(list_user());
+                                snackbar_key = enqueueSnackbar("user deleted successfully", { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/fobject/list":
+                            if (res.ok) {
+                                dispatch(setFs(res.data));
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/fobject/remove":
+                            if (res.ok) {
+                                dispatch(get_fobject_list());
+                                snackbar_key = enqueueSnackbar("item deleted successfully", { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/fobject/folder/add":
+                            if (res.ok) {
+                                dispatch(get_fobject_list());
+                                snackbar_key = enqueueSnackbar("new folder created successfully", { variant: "success" });
                             }
                             else
                                 snackbar_key = enqueueSnackbar(res.error, { variant: "error" });

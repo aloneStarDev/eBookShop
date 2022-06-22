@@ -1,24 +1,28 @@
-import { Button, FormControl, Icon, Input, Paper, Typography, TextField } from "@mui/material";
+import { Button, FormControl, Icon, Input, Paper, Typography, TextField, CircularProgress } from "@mui/material";
 import { register, verify as verifyAction } from "../Redux/RequestSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box } from "@mui/system";
 export default function Register() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const serverResponse = useSelector(state => state.request.response);
     const [verify, setVerify] = useState({ state: false, code: null });
+    const [requested, setRequested] = useState(false);
     const [data, setData] = useState({ name: '', username: '', password: '', email: '' });
     useEffect(() => {
         console.log(serverResponse);
         if (!verify.state && serverResponse.ok) {
             setVerify({ state: true, code: null });
+        } else if (!verify.state && !serverResponse.ok) {
+            setRequested(false);
         }
     }, [serverResponse]);
     useEffect(() => {
         setVerify({ state: false, code: null });
         setData({ name: '', username: '', password: '', email: '' });
+        setRequested(false);
     }, [])
     return (
         <Paper elevation={24} sx={{ margin: "10vh auto", width: "fit-content" }}>
@@ -34,7 +38,7 @@ export default function Register() {
                             placeholder="name"
                             sx={{ marginTop: "20px" }}
                             onChange={e => setData({ ...data, name: e.target.value })}
-                            startAdornment={<Icon sx={{ padding: "10px" }}>badge</Icon>}
+                            startAdornment={<Icon sx={{ marginRight: "20px" }}>badge</Icon>}
                         />
                     </FormControl>
                     <FormControl
@@ -44,7 +48,7 @@ export default function Register() {
                             placeholder="username"
                             sx={{ marginTop: "10px" }}
                             onChange={e => setData({ ...data, username: e.target.value })}
-                            startAdornment={<Icon sx={{ padding: "10px" }}>person</Icon>}
+                            startAdornment={<Icon sx={{ marginRight: "20px" }}>person</Icon>}
                         />
                     </FormControl>
                     <FormControl
@@ -54,7 +58,7 @@ export default function Register() {
                             placeholder="email"
                             sx={{ marginTop: "10px" }}
                             onChange={e => setData({ ...data, email: e.target.value })}
-                            startAdornment={<Icon sx={{ padding: "10px" }}>mail</Icon>}
+                            startAdornment={<Icon sx={{ marginRight: "20px" }}>mail</Icon>}
                         />
                     </FormControl>
                     <FormControl
@@ -66,20 +70,31 @@ export default function Register() {
                             placeholder="password"
                             sx={{ marginTop: "10px" }}
                             onChange={e => setData({ ...data, password: e.target.value })}
-                            startAdornment={<Icon sx={{ padding: "10px" }}>key</Icon>}
+                            startAdornment={<Icon sx={{ marginRight: "20px" }}>key</Icon>}
                         />
                     </FormControl>
                     <FormControl
                         sx={{ width: "100%" }}
                     >
+                        {requested ?
+                            <Button
+                                variant="contained"
+                                sx={{ margin: "30px auto 0 auto", width: "50%" }}
+                            >
+                                <CircularProgress color="secondary" />
+                            </Button>
+                            : <Button
+                                variant="contained"
+                                sx={{ margin: "30px auto 0 auto", width: "50%" }}
+                                onClick={e => {
+                                    setRequested(true);
+                                    dispatch(register(data));
+                                }}
+                            >
+                                register
+                            </Button>
 
-                        <Button
-                            variant="contained"
-                            sx={{ margin: "30px auto 0 auto", width: "50%" }}
-                            onClick={e => dispatch(register(data))}
-                        >
-                            Register
-                        </Button>
+                        }
                     </FormControl>
                     <FormControl
                         sx={{ width: "100%" }}
@@ -100,7 +115,6 @@ export default function Register() {
                                 label="activation code"
                                 sx={{ marginTop: "10px" }}
                                 onChange={e => setVerify({ ...verify, code: e.target.value })}
-                                startAdornment={<Icon sx={{ padding: "10px" }}>fingerprint</Icon>}
                             />
                         </FormControl>
                         <FormControl

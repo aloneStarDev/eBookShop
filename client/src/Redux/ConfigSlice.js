@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+let theme = localStorage.getItem('theme') || 'light';
 export const configSlice = createSlice({
   name: 'config',
   initialState: {
-    theme: localStorage.getItem('theme') ?? 'light',
+    theme: theme,
     sideMenu: false,
   },
   reducers: {

@@ -3,7 +3,7 @@ import { login } from "../Redux/RequestSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/system";
-import { useState } from "react";
+import React,{ useState } from "react";
 export default function Login() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -21,7 +21,7 @@ export default function Login() {
                         placeholder="username"
                         onChange={e=>setData({...data,username:e.target.value})}
                         sx={{ marginTop: "50px" }}
-                        startAdornment={<Icon sx={{ padding: "20px" }}>person</Icon>}
+                        startAdornment={<Icon sx={{marginRight:"20px"}}>person</Icon>}
                     />
                 </FormControl>
                 <FormControl
@@ -32,7 +32,7 @@ export default function Login() {
                         onChange={e=>setData({...data,password:e.target.value})}
                         placeholder="password"
                         sx={{ marginTop: "20px" }}
-                        startAdornment={<Icon sx={{ padding: "20px" }}>key</Icon>}
+                        startAdornment={<Icon sx={{marginRight:"20px"}}>key</Icon>}
                     />
                 </FormControl>
                 <FormControl
@@ -52,7 +52,7 @@ export default function Login() {
                     sx={{ margin: "20px auto", width: "50%" }}
                     onClick={e => navigate("/register")}
                 >
-                        or create account ?
+                        or register ?
                     </Button>
                 </FormControl>
             </Box>
