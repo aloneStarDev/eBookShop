@@ -2,7 +2,7 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
-import { Input } from '@mui/material';
+import { Input, Typography } from '@mui/material';
 
 const ListItem = styled('li')(({ theme }) => ({
   margin: theme.spacing(0.5),
@@ -34,25 +34,35 @@ export default function ChipsArray({ ...props }) {
         }}
       />
       <Paper
+        style={{
+          minHeight: "40px",
+        }}
         sx={{
           display: 'flex',
           flexWrap: 'wrap',
           listStyle: 'none',
+          border: "2px dashed",
+          borderColor: "background.primary",
           p: 0.5,
           m: 0,
+          mt: 1,
         }}
         component="ul"
       >
-        {chipData.map((data, index) => {
-          return (
-            <ListItem key={index}>
-              <Chip
-                label={data}
-                onDelete={handleDelete(index)}
-              />
-            </ListItem>
-          );
-        })}
+
+        {
+          chipData.length === 0
+            ? (props.itemPlaceholder !== undefined && <Typography sx={{ textAlign: "center", width: "100%" }} variant="inherit" >{props.itemPlaceholder}</Typography>)
+            : chipData.map((data, index) => {
+              return (
+                <ListItem key={index}>
+                  <Chip
+                    label={data}
+                    onDelete={handleDelete(index)}
+                  />
+                </ListItem>
+              );
+            })}
       </Paper>
     </>
   );

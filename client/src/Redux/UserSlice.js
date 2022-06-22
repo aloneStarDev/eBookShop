@@ -1,9 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
-let initialState = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {
-    name: null,
-    username: null,
-    email: null,
-    role: 0,
+let initialState = localStorage.getItem("user") ? { data: JSON.parse(localStorage.getItem("user")) } : {
+    data: {
+        _id: null,
+        name: null,
+        username: null,
+        email: null,
+        role: 0,
+    }
 };
 
 export const userSlice = createSlice({
@@ -13,7 +16,8 @@ export const userSlice = createSlice({
         setUser: (state, action) => {
             if (action.payload === null) {
                 localStorage.removeItem("user");
-                state = {
+                state.data = {
+                    _id: null,
                     name: null,
                     username: null,
                     email: null,
@@ -26,14 +30,10 @@ export const userSlice = createSlice({
             };
             if (data.hasOwnProperty("password"))
                 delete data.password;
-            let x = {
-                ...state,
-                ...data
-            };
-            state = {
-                ...x
-            };
-            localStorage.setItem("user", JSON.stringify(state));
+            for (let k in data) {
+                state.data[k] = data[k];
+            }
+            localStorage.setItem("user", JSON.stringify(state.data))
         }
     },
 })

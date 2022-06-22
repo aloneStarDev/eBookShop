@@ -112,6 +112,14 @@ function RequestAdaptor() {
                             else
                                 snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
                             break;
+                        case "/api/fobject/access/public":
+                            if (res.ok) {
+                                dispatch(get_fobject_list());
+                                snackbar_key = enqueueSnackbar(`public access ${res.data.public ? "enabled": "disabled"}`, { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
                         default:
                             break;
                     }

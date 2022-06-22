@@ -34,6 +34,7 @@ export const requestSlice = createSlice({
             state.route = BASE_URL + "/api/user/list";
             state.auth = true;
             state.method = "POST";
+            state.data = {};
         },
         edit_user: (state, action) => {
             state.route = BASE_URL + "/api/user/edit";
@@ -64,6 +65,13 @@ export const requestSlice = createSlice({
             state.route = BASE_URL + "/api/fobject/list";
             state.auth = true;
             state.method = "POST";
+            state.data = {};
+        },
+        get_fobject_tree: (state, action) => {
+            state.route = BASE_URL + "/api/fobject/tree";
+            state.auth = true;
+            state.method = "POST";
+            state.data = {};
         },
         create_folder: (state, action) => {
             state.route = BASE_URL + "/api/fobject/folder/add";
@@ -73,6 +81,12 @@ export const requestSlice = createSlice({
         },
         remove_fobject: (state, action) => {
             state.route = BASE_URL + "/api/fobject/remove";
+            state.auth = true;
+            state.method = "POST";
+            state.data = action.payload;
+        },
+        toggle_public_access: (state, action) => {
+            state.route = BASE_URL + "/api/fobject/access/public";
             state.auth = true;
             state.method = "POST";
             state.data = action.payload;
@@ -96,6 +110,8 @@ export const {
     get_fobject_list,
     create_folder,
     remove_fobject,
+    get_fobject_tree,
+    toggle_public_access
 } = requestSlice.actions
 
 export default requestSlice.reducer

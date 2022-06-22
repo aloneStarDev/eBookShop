@@ -169,7 +169,7 @@ export default function UserManagement() {
                                 value={currentUser.data.name}
                                 onChange={e => setCurrnetUser({ ...currentUser, data: { ...currentUser.data, name: e.target.value } })}
                                 sx={{ marginTop: "20px" }}
-                                startAdornment={<Icon sx={{ padding: "10px" }}>badge</Icon>}
+                                startAdornment={<Icon sx={{mr:2}}>badge</Icon>}
                             />
                         </FormControl>
                         <FormControl
@@ -180,7 +180,7 @@ export default function UserManagement() {
                                 value={currentUser.data.username}
                                 onChange={e => setCurrnetUser({ ...currentUser, data: { ...currentUser.data, username: e.target.value } })}
                                 sx={{ marginTop: "10px" }}
-                                startAdornment={<Icon sx={{ padding: "10px" }}>person</Icon>}
+                                startAdornment={<Icon sx={{mr:2}}>person</Icon>}
                             />
                         </FormControl>
                         <FormControl
@@ -191,7 +191,7 @@ export default function UserManagement() {
                                 value={currentUser.data.email}
                                 onChange={e => setCurrnetUser({ ...currentUser, data: { ...currentUser.data, email: e.target.value } })}
                                 sx={{ marginTop: "10px" }}
-                                startAdornment={<Icon sx={{ padding: "10px" }}>mail</Icon>}
+                                startAdornment={<Icon sx={{mr:2}}>mail</Icon>}
                             />
                         </FormControl>
                         <FormControl
@@ -204,7 +204,7 @@ export default function UserManagement() {
                                 sx={{ marginTop: "10px" }}
                                 value={currentUser.data.password}
                                 onChange={e => setCurrnetUser({ ...currentUser, data: { ...currentUser.data, password: e.target.value } })}
-                                startAdornment={<Icon sx={{ padding: "10px" }}>key</Icon>}
+                                startAdornment={<Icon sx={{mr:2}}>key</Icon>}
                             />
                         </FormControl>
                         <FormControlLabel
