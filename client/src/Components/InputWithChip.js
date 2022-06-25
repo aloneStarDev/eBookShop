@@ -19,20 +19,23 @@ export default function ChipsArray({ ...props }) {
 
   return (
     <>
-      <Input
-        placeholder={props.placeholder || ""}
-        startAdornment={props.startAdornment || null}
-        value={item}
-        onChange={e => setItem(e.target.value)}
-        onKeyPress={(ev) => {
-          if (ev.key === "Enter") {
-            ev.preventDefault();
-            if (chipData.indexOf(item) === -1 && item !== "")
-              setChipData([...chipData, item])
-            setItem("")
-          }
-        }}
-      />
+      {
+        props.InputElement ||  
+        <Input
+          placeholder={props.placeholder || ""}
+          startAdornment={props.startAdornment || null}
+          value={item}
+          onChange={e => setItem(e.target.value)}
+          onKeyPress={(ev) => {
+            if (ev.key === "Enter") {
+              ev.preventDefault();
+              if (chipData.indexOf(item) === -1 && item !== "")
+                setChipData([...chipData, item])
+              setItem("")
+            }
+          }}
+        />
+      }
       <Paper
         style={{
           minHeight: "40px",

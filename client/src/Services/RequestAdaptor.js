@@ -120,6 +120,14 @@ function RequestAdaptor() {
                             else
                                 snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
                             break;
+                        case "/api/fobject/access/change":
+                            if (res.ok) {
+                                dispatch(get_fobject_list());
+                                snackbar_key = enqueueSnackbar(`changing access success`, { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
                         default:
                             break;
                     }

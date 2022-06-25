@@ -91,6 +91,12 @@ export const requestSlice = createSlice({
             state.method = "POST";
             state.data = action.payload;
         },
+        change_access: (state, action) => {
+            state.route = BASE_URL + "/api/fobject/access/change";
+            state.auth = true;
+            state.method = "POST";
+            state.data = action.payload;
+        },
         response: (state, action) => {
             state.response = action.payload;
         }
@@ -111,7 +117,8 @@ export const {
     create_folder,
     remove_fobject,
     get_fobject_tree,
-    toggle_public_access
+    toggle_public_access,
+    change_access
 } = requestSlice.actions
 
 export default requestSlice.reducer
