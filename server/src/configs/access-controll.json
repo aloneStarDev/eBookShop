@@ -189,24 +189,31 @@
                 2
             ],
             "parameter": {
-                "path": {
+                "fid": {
                     "type": "string",
                     "required": true
                 }
             }
         },
-        "/api/fobject/access/add": {
+	"/api/fobject/file/download":{
+	    "roles":[
+	    	0,
+		1,
+		3
+	    ]
+	},
+        "/api/fobject/access/change": {
             "roles": [
                 0,
                 1,
                 2
             ],
             "parameter": {
-                "username": {
-                    "type": "string",
+                "access": {
+                    "type": "array.string",
                     "required": true
                 },
-                "path": {
+                "fid": {
                     "type": "string",
                     "required": true
                 }

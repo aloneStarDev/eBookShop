@@ -15,12 +15,16 @@ router.post("/file/add", upload.array("files"), async (req, res, next) => {
     const FObjectModel = mongoose.model("FObject");
     const UserModel = mongoose.model("User");
 
-    if (req.body.public != undefined && typeof (req.body.public) !== "boolean") {
-        res.status(400);
-        next("vpath must be string");
-        return;
+    if (req.body.public !== undefined){
+	if(typeof (req.body.public) !== "string") {
+        	res.status(400);
+		next("public must be boolean string");
+        	return;
+	}else{
+		req.body.public = req.body.public === "true" ? true:false;
+	}
     }
-    if (req.body.vpath != undefined && typeof (req.body.vpath) !== "string") {
+    if (req.body.vpath !== undefined && typeof (req.body.vpath) !== "string") {
         res.status(400);
         next("vpath must be string");
         return;
@@ -49,7 +53,7 @@ router.post("/file/add", upload.array("files"), async (req, res, next) => {
             fid: req.files[f].filename,
             owner: req.jwt.id,
             name: req.files[f].originalname,
-            public: false,
+	    public: false,
             ...req.body
         });
         file.generate_hash(req.files[f].filename);
@@ -108,41 +112,71 @@ router.post("/folder/add", async (req, res, next) => {
 });
 router.post("/remove", async (req, res, next) => {
     const FObjectModel = mongoose.model("FObject");
-    let path = req.body.path.split("/")
-    let name = path.slice(path.length - 1)[0]
-    let vpath = "/"
-    if (path.lenth > 2)
-        vpath = path.slice(0, path.length - 1).join("/");
-    let result = await FObjectModel.findOneAndDelete({
-        vpath,
-        name,
-        "$or": [
-            { owner: req.jwt.id },
-        ]
+    let fid = req.body.fid
+    let result = await FObjectModel.findOne({
+	_id:fid,
+        owner: req.jwt.id
     });
-    if (result) {
-        if (result.ftype == FObject.types.File) {
-            fs.unlinkSync(`/data/${result.fid}`);
-        }
-        res.status(200).json({ ok: true })
+    if (result){
+	let vpath = "/";
+	if(result.vpath === "/")
+	    vpath += result.name
+	else
+	    vpath = result.vpath + "/" + result.name
+	let regx = new RegExp("^"+vpath)
+	let items_to_delete = await FObjectModel.find({owner:req.jwt.id,vpath:{"$regex":regx}})
+	items_to_delete.push(result);
+	items_id_to_delete = items_to_delete.map(item=>item._id);
+	result = await FObjectModel.deleteMany({_id:{"$in":items_id_to_delete}})
+        if (result.acknowledged && result.deletedCount === items_to_delete.length) {
+            items_to_delete.forEach(item=>{
+		if(item.ftype === FObject.types.File)
+		    fs.unlinkSync(`/data/${item.fid}`);
+	    });
+        	res.status(200).json({ ok: true })
+	}else
+        	res.status(200).json({ ok: false,error:"faild to delete all items" })
     }
     else
-        res.status(200).json({ ok: false,error:"access denied" })
+        res.status(200).json({ ok: false, error:"access denied" })
 });
-router.post("/access/add", async (req, res, next) => {
+router.get("/file/download/:fid",async (req,res,next)=>{
+    const FObjectModel = mongoose.model("FObject");
+    let fitem = await FObjectModel.findOne({
+	    _id:req.params.fid,
+	    "$or":[
+		    {"owner":req.jwt.id},
+		    {"access":req.jwt.id},
+		    {"public":true}
+    	    	]
+    	});
+    if(fitem!=null){
+	res.setHeader('Content-Disposition', 'attachment; filename='+fitem.name);
+    	res.sendFile(fitem.fid,{root:"/data"},err=>{
+		if(err){
+			console.log(err);
+			//res.status(500).json({ok:false,error:"failed to send file"});
+		}
+	});
+    }else{
+    	res.status(400).json({ok:false,error:"invalid fid or access violation"});
+    }
+});
+
+router.post("/access/change", async (req, res, next) => {
     const FObjectModel = mongoose.model("FObject");
     const UserModel = mongoose.model("User");
-    let user = await UserModel.findOne({ username: req.body.username });
-    let path = req.body.path.split("/")
-    let name = path.slice(path.length - 1)[0]
-    let vpath = "/"
-    if (path.lenth > 2)
-        vpath = path.slice(0, path.length - 1).join("/");
-    let result = await FObjectModel.updateOne({ owner: req.jwt.id, name, vpath }, { "$addToSet": { "access": user["_id"].toString() } });
+    let user_list = await UserModel.find({ username: {"$in":req.body.access } });
+    if(user_list.length !== req.body.access.length){
+    	res.status(200).json({ok:false,error:"invalid username in access list"})
+    	return;
+    }
+    user_list = user_list.map(x=>x._id);
+    let result = await FObjectModel.updateOne({ owner: req.jwt.id, _id:req.body.fid }, { "$set": { "access": user_list } });
     if (result.acknowledged && result.modifiedCount === 1)
         res.status(200).json({ ok: true });
     else
-        res.status(200).json({ ok: false });
+        res.status(200).json({ ok: false,error:"fail to change access" });
 });
 
 router.post("/access/remove", async (req, res, next) => {
