@@ -20,7 +20,7 @@ export default function ChipsArray({ ...props }) {
   return (
     <>
       {
-        props.InputElement ||  
+        props.InputElement ||
         <Input
           placeholder={props.placeholder || ""}
           startAdornment={props.startAdornment || null}
@@ -49,6 +49,7 @@ export default function ChipsArray({ ...props }) {
           p: 0.5,
           m: 0,
           mt: 1,
+          overflow: "hidden"
         }}
         component="ul"
       >
@@ -60,6 +61,10 @@ export default function ChipsArray({ ...props }) {
               return (
                 <ListItem key={index}>
                   <Chip
+                    sx={{
+                      textOverflow: "ellipsis",
+                      maxWidth: "245px"
+                    }}
                     label={data}
                     onDelete={handleDelete(index)}
                   />

@@ -52,7 +52,7 @@ export default function UserManagement() {
             }
         });
         setModalType("edit");
-
+        
         let checked_count = 0;
         rows.forEach(x => x.checked && checked_count++);
         if (checked_count === rows.length)
