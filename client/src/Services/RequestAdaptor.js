@@ -115,7 +115,23 @@ function RequestAdaptor() {
                         case "/api/fobject/access/public":
                             if (res.ok) {
                                 dispatch(get_fobject_list());
-                                snackbar_key = enqueueSnackbar(`public access ${res.data.public ? "enabled": "disabled"}`, { variant: "success" });
+                                snackbar_key = enqueueSnackbar(`public access ${res.data.public ? "enabled" : "disabled"}`, { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/fobject/access/change":
+                            if (res.ok) {
+                                dispatch(get_fobject_list());
+                                snackbar_key = enqueueSnackbar(`changing access success`, { variant: "success" });
+                            }
+                            else
+                                snackbar_key = enqueueSnackbar(res.error, { variant: "error" });
+                            break;
+                        case "/api/fobject/move":
+                            if (res.ok) {
+                                dispatch(get_fobject_list());
+                                snackbar_key = enqueueSnackbar(`moving items successfull`, { variant: "success" });
                             }
                             else
                                 snackbar_key = enqueueSnackbar(res.error, { variant: "error" });

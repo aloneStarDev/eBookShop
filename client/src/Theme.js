@@ -10,7 +10,7 @@ const darkTheme = createTheme({
         },
         text:{
             primary:"#fff"
-        }
+        },
     },
 });
 
@@ -20,7 +20,7 @@ const lightTheme = createTheme({
         background:{ 
             secondary:"#49a9b8",
             primary:"#5afacf"
-        }
+        },
     },
 });
 
