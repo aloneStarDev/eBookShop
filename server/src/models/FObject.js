@@ -14,8 +14,8 @@ const FObject = new Schema({
     ftype: { type: Number, required: [true, "ftype required"] },
     owner: { type: ObjectId, required: [true, "owner required"] },
     access: [{ type: ObjectId }],
-    vpath: { type: String, default: "/" },
-    public: { type: Boolean, defualt: false}
+    parent: { type: String, default: "/" },         /* it's foreign key to fid */
+    public: { type: Boolean, defualt: false }
 }, { timestamps: true });
 
 FObject.methods = {
