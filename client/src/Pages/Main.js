@@ -1,12 +1,13 @@
-import { AppBar, Autocomplete, Avatar, Breadcrumbs, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Checkbox, Chip, FormControl, FormControlLabel, FormLabel, Grid, Icon, IconButton, Input, LinearProgress, Link, Menu, MenuItem, Modal, Paper, Toolbar, Typography } from "@mui/material";
+import { AppBar, Autocomplete, Avatar, Breadcrumbs, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Checkbox, Chip, CircularProgress, FormControl, FormControlLabel, FormLabel, Grid, Icon, IconButton, Input, LinearProgress, Link, Menu, MenuItem, Modal, Paper, Toolbar, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom";
-import { change_access, create_folder, get_fobject_list, remove_fobject, toggle_public_access } from "../Redux/RequestSlice";
-import { cd, toggleMenuItem, toggleSelectItem, unSelectAllItems } from "../Redux/StorageSlice";
+import { change_access, create_folder, get_fobject_list, move_fobject, remove_fobject, toggle_public_access } from "../Redux/RequestSlice";
+import { cd, setDownloadValue, toggleMenuItem, toggleSelectItem, unSelectAllItems } from "../Redux/StorageSlice";
 import ChipsArray from "../Components/InputWithChip";
 import { useSnackbar } from "notistack";
+import zIndex from "@mui/material/styles/zIndex";
 
 const style = {
     position: 'absolute',
@@ -28,6 +29,8 @@ export default function Main() {
     const dispatch = useDispatch()
     const fobjects = useSelector(state => state.storage.current);
     const current_path = useSelector(state => state.storage.path);
+    const parent = useSelector(state => state.storage.current_parent);
+    const fs = useSelector(state => state.storage.fs);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectMode, toggleSelectMode] = useState(false);
     const [modal, toggleModal] = useState(false);
@@ -38,19 +41,57 @@ export default function Main() {
     const [uploadValue, setUploadValue] = useState(0);
     const [chipFiles, setChipFiles] = useState([]);
     const [modalData, setModalData] = useState({ name: "", public: false });
+
     const navigate = useNavigate();
+    const handle_move = (from, to) => {
+        let selected = [from];
+        if (selectMode)
+            selected.push(...fobjects.filter(x => x.checked).map(x => x._id));
+        selected = [...(new Set(selected))];
+        if (selected.includes(to)) {
+            let sid = enqueueSnackbar("can't move one folder to him self", { variant: "error" });
+            setTimeout(() => { closeSnackbar(sid) }, 1000);
+        } else {
+            dispatch(move_fobject({ fids: selected, target: to }))
+        }
+    }
+    const handle_move_by_name = (from, index) => {
+        let path = current_path.split("/");
+        if (index === 0)
+            handle_move(from, "/");
+        else {
+            let path_covrage = path.filter((item, i) => index >= i);
+            path_covrage[0] = "/";
+            let target = path_covrage[path_covrage.length - 1];
+            let check_node = { name: "/", _id: "/" }
+            let current_depth_parent = "/";
+            let i = 1;
+            while (check_node.name !== target) {
+                check_node = fs.find(x => x.parent === current_depth_parent && x.name === path_covrage[i]);
+                current_depth_parent = check_node._id;
+                i++;
+            }
+            handle_move(from, check_node._id);
+        }
+    }
     const handleChangeDir = (index) => {
         let path = current_path.split("/");
         if (index === 0)
             dispatch(cd("/"));
         else {
-            let new_path = ""
-            let cnt = 0;
-            for (let i = 1; i <= index; i++)
-                new_path += "/" + path[i];
-            dispatch(cd(new_path));
+            let path_covrage = path.filter((item, i) => index >= i);
+            path_covrage[0] = "/";
+            let target = path_covrage[path_covrage.length - 1];
+            let check_node = { name: "/", _id: "/" }
+            let current_depth_parent = "/";
+            let i = 1;
+            while (check_node.name !== target) {
+                check_node = fs.find(x => x.parent === current_depth_parent && x.name === path_covrage[i]);
+                current_depth_parent = check_node._id;
+                i++;
+            }
+            dispatch(cd(check_node._id))
         }
-
     }
     const handleBackPress = (e) => {
         if (current_path === "/") {
@@ -61,9 +102,19 @@ export default function Main() {
         }
         else {
             let path = current_path.split("/");
-            let new_path = "/";
-            new_path += path.splice(path.length - 2, 1).join("/");
-            dispatch(cd(new_path));
+            path.splice(path.length - 1, 1);
+            let path_covrage = path;
+            path_covrage[0] = "/";
+            let target = path_covrage[path_covrage.length - 1];
+            let check_node = { name: "/", _id: "/" }
+            let current_depth_parent = "/";
+            let i = 1;
+            while (check_node.name !== target) {
+                check_node = fs.find(x => x.parent === current_depth_parent && x.name === path_covrage[i]);
+                current_depth_parent = check_node._id;
+                i++;
+            }
+            dispatch(cd(check_node._id))
         }
     };
     const onSelectFile = (e) => {
@@ -92,7 +143,7 @@ export default function Main() {
     const uploadFileHandler = () => {
         let formdata = new FormData();
         formdata.append("public", modalData.public);
-        formdata.append("vpath", current_path);
+        formdata.append("parent", parent);
         formdata.append("access", JSON.stringify(chipData));
         for (let i in files) {
             formdata.append("files", files[i]);
@@ -107,7 +158,10 @@ export default function Main() {
                         snackbar_key = enqueueSnackbar(`${files.length} uploaded successfully`, { variant: "success" });
                         dispatch(get_fobject_list());
                     } else {
-                        snackbar_key = enqueueSnackbar(`failed to upload all items`, { variant: "error" });
+                        if (result.error) {
+                            snackbar_key = enqueueSnackbar(`${result.error}`, { variant: "error" });
+                        } else
+                            snackbar_key = enqueueSnackbar(`failed to upload all items`, { variant: "error" });
                         dispatch(get_fobject_list());
                     }
                     toggleModal(false);
@@ -118,29 +172,56 @@ export default function Main() {
         }
         xhr.open('POST', "/api/fobject/file/add", true);
         xhr.upload.onprogress = function (evt) {
-            console.log(evt);
             if (evt.lengthComputable) {
                 let progress = Math.ceil((evt.loaded / evt.total) * 100);
                 setUploadValue(progress);
             }
         };
+        xhr.onabort = (e) => {
+            let sid = enqueueSnackbar("upload aborted", { variant: "warning" });
+            setTimeout(() => closeSnackbar(sid), 1000);
+            setUploadValue(0);
+        };
+        let abort_listener = (e) => {
+            xhr.abort();
+            document.removeEventListener("abort-upload", abort_listener);
+        };
+        document.addEventListener("abort-upload", abort_listener)
         xhr.setRequestHeader("Authorization", jwt);
         xhr.send(formdata);
     }
     const downloadFile = (fitem) => {
-        fetch("/api/fobject/file/download/" + fitem._id, {
-            "method": "GET",
-            headers: {
-                "Authorization": jwt
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', "/api/fobject/file/download/" + fitem._id, true);
+        xhr.responseType = "blob";
+        xhr.onload = () => {
+            let item_uri = URL.createObjectURL(xhr.response);
+            let fileLink = document.createElement('a');
+            fileLink.href = item_uri;
+            fileLink.download = fitem.name;
+            fileLink.click();
+            dispatch(setDownloadValue({ fid: fitem._id, value: 0 }));
+            let sid = enqueueSnackbar("download complete", { variant: "success" });
+            setTimeout(() => closeSnackbar(sid), 1000);
+        };
+        xhr.onprogress = function (evt) {
+            if (evt.lengthComputable) {
+                let progress = Math.ceil((evt.loaded / evt.total) * 100);
+                dispatch(setDownloadValue({ fid: fitem._id, value: progress }));
             }
-        }).then(x => x.blob())
-            .then(x => {
-                let item_uri = URL.createObjectURL(x);
-                var fileLink = document.createElement('a');
-                fileLink.href = item_uri;
-                fileLink.download = fitem.name;
-                fileLink.click();
-            });
+        };
+        xhr.onabort = (e) => {
+            let sid = enqueueSnackbar("download aborted", { variant: "warning" });
+            setTimeout(() => closeSnackbar(sid), 1000);
+            dispatch(setDownloadValue({ fid: fitem._id, value: 0 }));
+        };
+        let abort_listener = (e) => {
+            xhr.abort();
+            document.removeEventListener(`abort-download-${fitem._id}`, abort_listener);
+        };
+        document.addEventListener(`abort-download-${fitem._id}`, abort_listener)
+        xhr.setRequestHeader("Authorization", jwt);
+        xhr.send();
     }
     useEffect(() => {
         if (jwt === null)
@@ -186,13 +267,11 @@ export default function Main() {
                         </Icon>
                     </IconButton>
                     <Breadcrumbs sx={{ marginLeft: "20px" }} aria-label="breadcrumb" separator="/">
-
                         {
                             current_path === "/" ?
                                 <Typography color="text.primary">/</Typography> :
                                 current_path.split("/").map((p, i) => {
                                     if (i === 0) {
-
                                         p = <Typography mt={0.9}>
                                             <Icon fontSize="small">home</Icon>
                                         </Typography>
@@ -205,6 +284,8 @@ export default function Main() {
 
                                     return (
                                         <Link
+                                            onDragOver={(e) => { e.preventDefault() }}
+                                            onDrop={(e) => { handle_move_by_name(e.dataTransfer.getData("fid"), i) }}
                                             key={i}
                                             underline="hover"
                                             color="inherit"
@@ -250,12 +331,30 @@ export default function Main() {
                             upload_file
                         </Icon>
                     </IconButton>
-
                 </Toolbar>
             </AppBar>
             <Modal
                 open={modal}
-                onClose={(e) => { toggleModal(false) }}
+                onClose={(e) => {
+                    if (modalType === "Upload Files" && uploadValue !== 0) {
+                        enqueueSnackbar(`upload already in progress`, {
+                            variant: "warning", action: (key) => (
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    size="small"
+                                    onClick={() => {
+                                        document.dispatchEvent(new Event("abort-upload"));
+                                        closeSnackbar(key);
+                                    }}
+                                >cancel upload
+                                </Button>
+                            ),
+                            persist: true,
+                        })
+                    }
+                    toggleModal(false)
+                }}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
@@ -294,7 +393,26 @@ export default function Main() {
                 >
                     <IconButton
                         sx={{ color: "red" }}
-                        onClick={(e) => { toggleModal(false) }}
+                        onClick={(e) => {
+                            if (modalType === "Upload Files" && uploadValue !== 0) {
+                                enqueueSnackbar("upload already in progress", {
+                                    variant: "warning", action: (key) => (
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            size="small"
+                                            onClick={() => {
+                                                document.dispatchEvent(new Event("abort-upload"));
+                                                closeSnackbar(key);
+                                            }}
+                                        >cancel upload
+                                        </Button>
+                                    ),
+                                    persist: true
+                                })
+                            }
+                            toggleModal(false)
+                        }}
                     >
                         <Icon>close</Icon>
                     </IconButton>
@@ -362,37 +480,56 @@ export default function Main() {
                             >
                             </FormControlLabel>
                         }
-
                         <FormControl sx={{ width: "100%" }}>
-                            <Button
-                                variant="contained"
-                                disabled={uploadValue !== 0}
-                                color="success"
-                                sx={{ margin: "20px auto", width: "100%" }}
-                                onClick={(e) => {
-                                    if (modalType === "Change Access") {
-                                        let params = { fid: modalData.name, access: chipData };
-                                        dispatch(change_access(params));
-                                        toggleModal(false);
-                                    } else if (modalType === "Upload Files") {
-                                        uploadFileHandler();
-                                    } else if (modalType === "New Folder") {
-                                        let params = { ...modalData };
-                                        if (current_path !== "/")
-                                            params.vpath = current_path;
-                                        if (chipData.length !== 0)
-                                            params.access = chipData;
-                                        dispatch(create_folder(params));
-                                        toggleModal(false);
-                                    }
-                                }}
-                            >
-                                {
-                                    modalType === "Change Access" ? "save" :
-                                        modalType === "New Folder" ? "create" :
-                                            modalType === "Upload Files" ? "upload" : ""
-                                }
-                            </Button>
+                            {
+                                uploadValue === 0 ?
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        sx={{ margin: "20px auto", width: "100%" }}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            if (modalType === "Change Access") {
+                                                let params = { fid: modalData.name, access: chipData };
+                                                dispatch(change_access(params));
+                                                toggleModal(false);
+                                            } else if (modalType === "Upload Files") {
+                                                uploadFileHandler();
+                                            } else if (modalType === "New Folder") {
+                                                let params = { ...modalData };
+                                                params.parent = parent;
+                                                if (chipData.length !== 0)
+                                                    params.access = chipData;
+                                                if (fobjects.findIndex(x => x.name === params.name) === -1) {
+                                                    dispatch(create_folder(params));
+                                                    toggleModal(false);
+                                                } else {
+                                                    let sid = enqueueSnackbar("this folder already exist !", { variant: "error" });
+                                                    setTimeout(() => {
+                                                        closeSnackbar(sid);
+                                                    }, 1000);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        {
+                                            uploadValue !== 0 ? "Cancel Upload" :
+                                                modalType === "Change Access" ? "save" :
+                                                    modalType === "New Folder" ? "create" :
+                                                        modalType === "Upload Files" ? "upload" : ""
+                                        }
+                                    </Button> :
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        sx={{ margin: "20px auto", width: "100%" }}
+                                        onClick={() => {
+                                            document.dispatchEvent(new Event("abort-upload"));
+                                        }}
+                                    >
+                                        cancel upload
+                                    </Button>
+                            }
                             {
                                 modalType === "Upload Files" && uploadValue !== 0 &&
                                 <FormControl sx={{ width: "100%" }}>
@@ -400,16 +537,32 @@ export default function Main() {
                                 </FormControl>
                             }
                         </FormControl>
-
                     </Box>
                 </Paper>
             </Modal>
             <Grid container sx={{ color: "text.primary" }}>
+
                 {fobjects.map(f => {
                     return (
-                        <Grid key={f._id} item xl={3} lg={4} sm={6} xs={12} sx={{ padding: "10px" }}>
+                        <Grid
+                            key={f._id} item xl={3} lg={4} sm={6} xs={12} sx={{ padding: "10px" }}>
                             <Card
-                                sx={{ width: "100%", borderRadius: "10px", backgroundColor: "background.primary" }}>
+                                onDragStart={(ev) => {
+                                    ev.dataTransfer.setData("fid", f._id);
+                                    ev.dataTransfer.effectAllowed = "move";
+                                }}
+                                onDragOver={(ev) => {
+                                    if (f.ftype === 1) {
+                                        ev.preventDefault();
+                                    }
+                                }}
+                                onDrop={(ev) => {
+                                    let data = ev.dataTransfer.getData("fid");
+                                    handle_move(data, f._id);
+                                }}
+                                draggable={true}
+                                sx={{ width: "100%", borderRadius: "10px", backgroundColor: "background.primary" }}
+                            >
                                 <CardHeader
                                     avatar={
                                         <Avatar
@@ -417,16 +570,26 @@ export default function Main() {
                                                 if (selectMode) {
                                                     dispatch(toggleSelectItem({ fid: f._id }))
                                                 } else {
-                                                    if (f.ftype === 0)
-                                                        downloadFile(f);
-                                                    else if (f.vpath === "/")
-                                                        dispatch(cd(f.vpath + f.name))
+                                                    if (f.ftype === 0) {
+                                                        if (f.downloadValue !== 0)
+                                                            document.dispatchEvent(new Event(`abort-download-${f._id}`));
+                                                        else
+                                                            downloadFile(f);
+                                                    }
                                                     else
-                                                        dispatch(cd(f.vpath + "/" + f.name))
+                                                        dispatch(cd(f._id))
                                                 }
                                             }}
                                             sx={{ bgcolor: "text.primary", cursor: "pointer" }} aria-label="recipe">
-                                            <Icon>{f.checked ? "check" : f.ftype === 0 ? "description" : f.ftype === 1 ? (f.public ? "share" : (f.owner === user._id ? "folder" : "folder_shared")) : "question_mark"}</Icon>
+                                            {f.downloadValue !== 0 ?
+                                                (
+                                                    <>
+                                                        <CircularProgress variant="determinate" value={f.downloadValue} sx={{ position: "absolute", color: "background.default" }} />
+                                                        <Icon>close</Icon>
+                                                    </>
+                                                ) :
+                                                (<Icon>{f.checked ? "check" : f.ftype === 0 ? "description" : f.ftype === 1 ? (f.public ? "share" : (f.owner === user._id ? "folder" : "folder_shared")) : "question_mark"}</Icon>)
+                                            }
                                         </Avatar>
                                     }
                                     action={
@@ -434,7 +597,7 @@ export default function Main() {
                                             <IconButton
                                                 onClick={(e) => {
                                                     setAnchorEl(e.target);
-                                                    dispatch(toggleMenuItem({ fid: f._id }))
+                                                    dispatch(toggleMenuItem({ fid: f._id }));
                                                 }}
                                                 aria-label="settings">
                                                 <Icon>more_vert</Icon>
@@ -454,12 +617,7 @@ export default function Main() {
                                                 </MenuItem>
                                                 <MenuItem sx={{ padding: "10px" }}
                                                     onClick={() => {
-                                                        let path = "";
-                                                        if (f.vpath === "/")
-                                                            path += f.name;
-                                                        else
-                                                            path += f.vpath + "/" + f.name
-                                                        dispatch(toggle_public_access({ path }))
+                                                        dispatch(toggle_public_access({ fid: f._id }))
                                                     }}
                                                 >
                                                     <Icon>share</Icon>
@@ -499,6 +657,7 @@ export default function Main() {
                     )
                 })
                 }
+
             </Grid>
         </>
     )

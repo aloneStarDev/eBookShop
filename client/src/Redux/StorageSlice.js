@@ -5,19 +5,46 @@ export const storageSlice = createSlice({
     initialState: {
         fs: [],
         path: "/",
+        current_parent: "/",
         current: [],
     },
     reducers: {
         setFs: (state, action) => {
             state.fs = action.payload;
-            state.current = action.payload.filter(x => x.vpath === state.path).map(x => {
-                return { ...x, checked: false, menu: false }
+            state.current = action.payload.filter(x => x.parent === state.current_parent).map(x => {
+                return { ...x, checked: false, menu: false, downloadValue: 0 }
             });
         },
         cd: (state, action) => {
-            state.path = action.payload;
-            state.current = state.fs.filter(x => x.vpath === state.path).map(x => {
-                return { ...x, checked: false, menu: false }
+            const complete_path = (fid, current_path) => {
+                if (fid === "/")
+                    return "/";
+                let item = state.fs.find(x => x._id === fid);
+                if (item.parent === "/") {
+                    if (current_path === undefined)
+                        return "/" + item.name;
+                    else
+                        return "/" + item.name + "/" + current_path;
+                }
+                else {
+                    if (current_path === undefined)
+                        return complete_path(item.parent, item.name);
+                    else
+                        return complete_path(item.parent, item.name + "/" + current_path);
+                }
+            }
+            state.path = complete_path(action.payload);
+            state.current_parent = action.payload;
+            state.current = state.fs.filter(x => x.parent === action.payload).map(x => {
+                return { ...x, checked: false, menu: false, downloadValue: 0 }
+            });
+        },
+        setDownloadValue: (state, action) => {
+            state.current = state.current.map(x => {
+                if (x._id === action.payload.fid) {
+                    x.downloadValue = action.payload.value;
+                }
+                return x;
             });
         },
         toggleSelectItem: (state, action) => {
@@ -35,6 +62,6 @@ export const storageSlice = createSlice({
     },
 })
 
-export const { setFs, toggleMenuItem, toggleSelectItem, cd, toggleAllSelectedItem, unSelectAllItems } = storageSlice.actions
+export const { setFs, toggleMenuItem, toggleSelectItem, cd, toggleAllSelectedItem, unSelectAllItems, setDownloadValue } = storageSlice.actions
 
 export default storageSlice.reducer
