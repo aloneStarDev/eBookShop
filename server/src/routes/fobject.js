@@ -73,7 +73,7 @@ router.post("/file/add", upload.array("files"), async (req, res, next) => {
     res.status(200).json({ ok: true, data: files });
 });
 
-router.post("/move", async (req, res) => {
+router.post("/move", async (req, res,next) => {
     const FObjectModel = mongoose.model("FObject");
     let target_folder;
     if (req.body.target !== "/") {
