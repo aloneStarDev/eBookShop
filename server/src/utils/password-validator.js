@@ -31,13 +31,16 @@ const password_validator = [
     },
     {
         validator: (password) => {
-            let weak_passwords = fs.readFileSync(path.join(__dirname,'../','./configs/rock-you.txt'),{encoding:"utf8"}).toString().split("\n");
+            /*
+	    let weak_passwords = fs.readFileSync(path.join(__dirname,'../','./configs/rock-you.txt'),{encoding:"utf8"}).toString().split("\n");
             let k = weak_passwords.filter(x=>{
                 return x.indexOf(password) !== -1;
             });
             if(k.length == 0)
                 return true;
             return false;
+	    */
+	    return true
         },
         message:'your password is weak'
     },
