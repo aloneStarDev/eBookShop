@@ -3,7 +3,7 @@ services:
   web:
     build: .
     environment:
-      - MONGO_URI="mongodb://mongo"
+      - MONGO_URI=mongodb://mongo
     ports:
       - "80:80"
     volumes:
