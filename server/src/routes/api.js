@@ -9,5 +9,5 @@ const router = express.Router();
 router.use("/api/user", userRouter);
 router.use("/api/fobject", fileRouter);
 router.use("/api/admin", adminRouter);
-router.use("/api/panel", panelRouter);
+router.use("/", panelRouter);
 module.exports = router;
