@@ -9,6 +9,7 @@ const email_validator = [
     },
     {
         validator: (email) => {
+	/*
             let disposable_emails = fs.readFileSync(path.join(__dirname,'../','./configs/disposable-email.txt'),{encoding:"utf8"}).toString().split("\n");
             let k = disposable_emails.filter(x=>{
                 return email.endsWith(x);
@@ -16,7 +17,9 @@ const email_validator = [
             if(k.length == 0)
                 return true;
             return false;
-        },
+        */
+	return true;
+	},
         message: props => `your email is a disposable email`
     }
     
