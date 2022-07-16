@@ -4,8 +4,8 @@
         "port": 587,
         "secure":false,
         "auth": {
-            "user": "heidi.zulauf86@ethereal.email",
-            "pass": "ZneAEMAKCeem9CYE1j"
+            "user": "myrtice.johnston@ethereal.email",
+            "pass": "RdZ4NkV7uZcwSHNexc"
         }
     },
     "jwt_secret":"hijack@Asgar"
