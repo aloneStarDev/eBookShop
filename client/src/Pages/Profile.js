@@ -1,9 +1,11 @@
 import { Button, Container, FormControl, Grid, Paper, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
+import { edit_user } from "../Redux/request"
 
 export default function Profile(props) {
     const user = useSelector(store => store.user.data)
+    const dispatch = useDispatch()
     const [profileData, setProfileData] = useState({
         name: "",
         username: "",
@@ -32,7 +34,7 @@ export default function Profile(props) {
                         <TextField value={profileData.password} label="password" onChange={(e) => { setProfileData({ ...profileData, password: e.target.value }) }} />
                     </FormControl>
                     <FormControl sx={{ width: "80%",mt:2 }}>
-                        <Button>save</Button>
+                        <Button onClick={()=>{dispatch(edit_user(profileData))}}>save</Button>
                     </FormControl>
                 </Paper>
             </Grid>
